@@ -1,0 +1,130 @@
+<html>
+	<head>
+		<title>Testing Ray-AABB intersection</title>
+		<script type="text/javascript" src="../RayCasta.min.js"></script>
+		<style type="text/css">
+			img {
+				display: none;
+			}
+			canvas {
+				background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.9) 50%, rgba(0,0,0,0.85) 55%,rgba(0,0,0,0.2) 100%);
+			}
+		</style>
+	</head>
+	<body>
+		<img id="burg" src="burg.png">
+		<img id="sprite" src="sprite.png">
+		<canvas id="canvas"></canvas>
+	</body>
+	<script>
+		let w = 600;
+		let h = 400;
+
+		//Making sure images are loaded
+		window.onload = function() {
+			let keyStates = {};
+			let pointerLockElement = null;
+			let burgTex = document.getElementById("burg");
+			let spriteTex = document.getElementById("sprite");
+			let canvas = document.getElementById("canvas");
+			let ctx = canvas.getContext("2d");
+
+			canvas.width = w;
+			canvas.height = h;
+
+			//Create our camera, where rays will originate from
+			let camera = new RayCasta.Camera({
+				x: 100,
+				y: 100,
+				width: w, //Same as canvas width
+				height: h //Same as canvas height
+			});
+
+			//Create walls, rectangles, aabbs, boxes w/e.
+			let aabbs = [];
+			for(let i = 0; i < 10; i++) {
+				aabbs.push(new RayCasta.AABB({
+					x: Math.random() * 300,
+					y: Math.random() * 300,
+					tex: burgTex
+				}));
+			}
+
+			//Create sprites
+			let sprites = [];
+			for(let i = 0; i < 10; i++) {
+				sprites.push(new RayCasta.Sprite({
+					x: Math.random() * 300,
+					y: Math.random() * 300,
+					tex: spriteTex
+				}));
+			}
+
+			//Setup renderer
+			let renderer = new RayCasta({
+				width: w, //Same as canvas height
+				height: h //Same as canvas height
+			});
+
+			function loop() {
+				ctx.clearRect(0, 0, w, h);
+				move();
+				renderer.render(camera, ctx, aabbs, sprites);
+				window.requestAnimationFrame(() => loop());
+			}
+			loop();
+
+			//Add some movement:
+			function move() {
+				let moveSpeed = 2;
+				let stepX = camera.dx * moveSpeed;
+				let stepY = camera.dy * moveSpeed;
+				if(keyStates["w"]) {
+					camera.x += stepX;
+					camera.y += stepY;
+				} else if(keyStates["s"]) {
+					camera.x -= stepX;
+					camera.y -= stepY;
+				}
+				let strafeDirection = 0;
+				if(keyStates["d"]) {
+					strafeDirection = 1; //Math.sin(Math.PI / 2)
+				}
+				if(keyStates["a"]) {
+					strafeDirection = -1; //Math.sin(-Math.PI / 2)
+				}
+				if(strafeDirection) {
+					//Strafing
+					let oldDirX = camera.dx;
+					let oldPlaneX = camera.px;
+					let tmpdx = -camera.dy * strafeDirection;
+					let tmpdy = oldDirX * strafeDirection;
+					camera.x += tmpdx * moveSpeed;
+					camera.y += tmpdy * moveSpeed;
+				}
+			}
+
+			//Bind mouse look events
+			canvas.onclick = () => canvas.requestPointerLock();
+			document.onkeydown = (e) => keyStates[e.key] = true;
+			document.onkeyup = (e) => keyStates[e.key] = false;
+			document.onpointerlockchange = (e) => {
+				let elem = document.pointerLockElement;
+				if(elem) {
+					pointerLockElement = elem;
+					elem.onmousemove = (e) => {
+						let amount = e.movementX;
+						if(!amount) {
+							return;
+						}
+						camera.rotate(amount / 360);
+					};
+				} else {
+					if(pointerLockElement) {
+						pointerLockElement.onmousemove = null;
+					}
+				}
+			};
+		};
+	</script>
+</html>
