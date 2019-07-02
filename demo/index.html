@@ -16,11 +16,9 @@
 	</head>
 	<body>
 		<div>
-			<b>
-				W/A/S/D to move.
-				<br>
-				Click on the canvas for mouse lock. Then you can use mouse to look around.
-			</b>
+			<b>W/A/S/D to move.</b>
+			<br>
+			<b>Click on the canvas for mouse lock. Then you can use mouse to look around.</b>
 		</div>
 		<img id="burg" src="burg.png">
 		<img id="sprite" src="sprite.png">
@@ -42,44 +40,42 @@
 			canvas.width = w;
 			canvas.height = h;
 
+			//Create RayCasta instance
+			let rc = new RayCasta(ctx);
+
 			//Create our camera, where rays will originate from
-			let camera = new RayCasta.Camera({
+			let camera = rc.Camera({
 				x: 100,
-				y: 100,
-				width: w, //Same as canvas width
-				height: h //Same as canvas height
+				y: 100
 			});
 
 			//Create walls, rectangles, aabbs, boxes w/e.
 			let aabbs = [];
 			for(let i = 0; i < 10; i++) {
-				aabbs.push(new RayCasta.AABB({
+				aabbs.push(rc.AABB(burgTex, {
 					x: Math.random() * 300,
 					y: Math.random() * 300,
-					tex: burgTex
+					w: Math.random() * 50 + 50,
+					h: Math.random() * 50 + 50
 				}));
 			}
 
 			//Create sprites
 			let sprites = [];
 			for(let i = 0; i < 10; i++) {
-				sprites.push(new RayCasta.Sprite({
+				sprites.push(rc.Sprite(spriteTex, {
 					x: Math.random() * 300,
-					y: Math.random() * 300,
-					tex: spriteTex
+					y: Math.random() * 300
 				}));
 			}
 
 			//Setup renderer
-			let renderer = new RayCasta({
-				width: w, //Same as canvas height
-				height: h //Same as canvas height
-			});
+			let renderer = rc.Renderer();
 
 			function loop() {
 				ctx.clearRect(0, 0, w, h);
 				move();
-				renderer.render(camera, ctx, aabbs, sprites);
+				renderer.render(camera, aabbs, sprites);
 				window.requestAnimationFrame(() => loop());
 			}
 			loop();
@@ -105,12 +101,8 @@
 				}
 				if(strafeDirection) {
 					//Strafing
-					let oldDirX = camera.dx;
-					let oldPlaneX = camera.px;
-					let tmpdx = -camera.dy * strafeDirection;
-					let tmpdy = oldDirX * strafeDirection;
-					camera.x += tmpdx * moveSpeed;
-					camera.y += tmpdy * moveSpeed;
+					camera.x += -camera.dy * strafeDirection * moveSpeed;
+					camera.y += camera.dx * strafeDirection * moveSpeed;
 				}
 			}
 

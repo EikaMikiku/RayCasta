@@ -5,24 +5,35 @@ RayCasta.js
 
 Rendering things like its 1992.
 
-### Usage ###
+## Usage
 
 Check [demo](https://eikamikiku.github.io/RayCasta/demo/) for usage.
 <br>
 To run demo locally, you need to serve files, otherwise browsers will complain about cross-origin issues.
 
-`RayCasta.Camera(params)`<b>:</b>
+In all objects constructor, parameter object is optional, default values shown below.
+
+## Factory Object
 ```javascript
-//Create our camera, where rays will originate from
-let camera = new RayCasta.Camera({
-    x: 100, //Default 0
-    y: 100, //Default 0
-    width: canvas.width, //Mandatory
-    height: canvas.height //Mandatory
+//Create factory object. It also stores context.
+let rc = new RayCasta(context, {
+    width: context.canvas.width, //Defaults to full canvas dimensions
+    height: context.canvas.height
 });
 ```
 
-`RayCasta.AABB(params)`<b>:</b>
+## Camera
+```javascript
+//Create our camera, where rays will originate from
+let camera = rc.Camera({
+    x: 0, //Camera position
+    y: 0,
+    dx: 1, //Where camera looks
+    dy: 0
+});
+```
+
+## AABB Object
 ```javascript
 //Create walls, rectangles, aabbs, boxes w/e.
 //Best to keep textures as squares, unless you really want distortions
@@ -30,51 +41,49 @@ let aabbs = [];
 let img = document.getElementById("img"); //img should be loaded before use
 for(let i = 0; i < 10; i++) {
     aabbs.push(
-        new RayCasta.AABB({
-            x: Math.random() * 300, //Default 0
-            y: Math.random() * 300, //Default 0
-            w: Math.random() * 100, //Default 50
-            h: Math.random() * 100, //Default 50
-            tex: img //Mandatory
+        rc.AABB(img, {
+            x: 0, //AABB position
+            y: 0,
+            w: 50, //Dimensions
+            h: 50
         })
     );
 }
 ```
 
-`RayCasta.Sprite(params)`<b>:</b>
+## Sprite Object
 ```javascript
 //Create sprites
 //Best to keep textures as squares, unless you really want distortions
 let sprites = [];
 let img = document.getElementById("img"); //img should be loaded before use
 for(let i = 0; i < 10; i++) {
-    sprites.push(new RayCasta.Sprite({
-        x: Math.random() * 300, //Default 0
-        y: Math.random() * 300, //Default 0
-        tex: img //Mandatory
-    }));
+    sprites.push(
+        rc.Sprite(img,{
+            x: 0, //Sprite position
+            y: 0
+        })
+    );
 }
 ```
 
-`RayCasta.Sprite(params)`<b>:</b>
+## Renderer Object
 ```javascript
 //Setup renderer
-let renderer = new RayCasta({
-    width: canvas.width, //Mandatory
-    height: canvas.height, //Mandatory
-    vertLineWidth: 3, //Default 3, Amount of pixels per vertical stripe
-    horLineWidth: 2, //Default 2, Amount of pixels per horizontal line
-    shadowDelta: 0.02, //Default 0.02, Amount of shadow applied for further vertical stripes.
-    heightDelta: 20, //Default 20, Height coefficient.
+let renderer = rc.Renderer({
+    vertLineWidth: 3, //Amount of pixels per vertical stripe
+    horLineWidth: 2, //Amount of pixels per horizontal line
+    shadowDelta: 0.02, //Amount of shadow applied for further vertical stripes
+    heightDelta: 20, //Height coefficient
 });
 ```
 
-Then you can use renderer like so<b>:</b>
+## Then you can use renderer like so
 ```javascript
 function loop() {
     ctx.clearRect(0, 0, w, h);
     camera.rotate(0.01);
-    renderer.render(camera, ctx, aabbs, sprites);
+    renderer.render(camera, aabbs, sprites);
     window.requestAnimationFrame(() => loop());
 }
 loop();
