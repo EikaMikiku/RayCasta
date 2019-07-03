@@ -82,6 +82,7 @@ function RayCasta(context, params) {
 		this.SHADOW_MODIFIER = params.shadowDelta || 0.02;
 		this.STRIPE_WIDTH = params.vertLineWidth || 3;
 		this.LINE_WIDTH = params.horLineWidth || 2;
+		this.processPixelColor = params.processPixelColorFunc || processPixelColor;
 
 		this.rcInstance = rcInstance;
 
@@ -167,9 +168,9 @@ function RayCasta(context, params) {
 				if(!color) {
 					continue; //Ignore subpixels
 				}
-				let r = getShadedColorFromDistance(color[0], dist, this.SHADOW_MODIFIER);
-				let g = getShadedColorFromDistance(color[1], dist, this.SHADOW_MODIFIER);
-				let b = getShadedColorFromDistance(color[2], dist, this.SHADOW_MODIFIER);
+				let r = this.processPixelColor(hitAABB, color[0], dist, this.SHADOW_MODIFIER);
+				let g = this.processPixelColor(hitAABB, color[1], dist, this.SHADOW_MODIFIER);
+				let b = this.processPixelColor(hitAABB, color[2], dist, this.SHADOW_MODIFIER);
 
 				for(let x2 = 0; x2 < this.STRIPE_WIDTH; x2++) {
 					for(let y2 = 0; y2 < this.LINE_WIDTH; y2++) {
@@ -260,9 +261,9 @@ function RayCasta(context, params) {
 							for(let x1 = 0; x1 < remainedWidth; x1++) {
 								for(let y1 = 0; y1 < this.LINE_WIDTH; y1++) {
 									let i = 4 * (this.rcInstance.WIDTH * (y + y1)) + 4 * (stripe + x1);
-									buffer[i + 0] = getShadedColorFromDistance(color[0], transformY, this.SHADOW_MODIFIER);
-									buffer[i + 1] = getShadedColorFromDistance(color[1], transformY, this.SHADOW_MODIFIER);
-									buffer[i + 2] = getShadedColorFromDistance(color[2], transformY, this.SHADOW_MODIFIER);
+									buffer[i + 0] = this.processPixelColor(sprite, color[0], transformY, this.SHADOW_MODIFIER);
+									buffer[i + 1] = this.processPixelColor(sprite, color[1], transformY, this.SHADOW_MODIFIER);
+									buffer[i + 2] = this.processPixelColor(sprite, color[2], transformY, this.SHADOW_MODIFIER);
 									buffer[i + 3] = color[3];
 								}
 							}
@@ -365,7 +366,7 @@ function RayCasta(context, params) {
 		}
 	}
 
-	function getShadedColorFromDistance(color, dist, shadowDelta) {
+	function processPixelColor(obj, color, dist, shadowDelta) {
 		let newColor = color / (dist * shadowDelta);
 		return newColor > color ? color : newColor;
 	}

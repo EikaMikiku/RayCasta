@@ -11,7 +11,7 @@ Check [demo](https://eikamikiku.github.io/RayCasta/demo/) for usage.
 <br>
 To run demo locally, you need to serve files, otherwise browsers will complain about cross-origin issues.
 
-In all objects constructor, parameter object is optional, default values shown below.
+<b>In all objects constructor, parameter object is optional, default values shown below.</b>
 
 ## Factory Object
 ```javascript
@@ -75,6 +75,19 @@ let renderer = rc.Renderer({
     horLineWidth: 2, //Amount of pixels per horizontal line
     shadowDelta: 0.02, //Amount of shadow applied for further vertical stripes
     heightDelta: 20, //Height coefficient
+    /*
+    Default function shown below.
+    Params:
+        obj: AABB or Sprite.
+        color: Integer between 0 - 255.
+        dist: Distance to the object from camera.
+        shadowDelta: Shadow delta value in the renderer.
+    Note: This function is heavily used(every R, G, B of every pixel rendered), so keep it light for performance.
+    */
+    processPixelColorFunc: function(obj, color, dist, shadowDelta) {
+        let newColor = color / (dist * shadowDelta);
+        return newColor > color ? color : newColor;
+    }
 });
 ```
 
