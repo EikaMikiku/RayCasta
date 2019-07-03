@@ -74,7 +74,7 @@ let renderer = rc.Renderer({
     vertLineWidth: 3, //Amount of pixels per vertical stripe
     horLineWidth: 2, //Amount of pixels per horizontal line
     shadowDelta: 0.02, //Amount of shadow applied for further vertical stripes
-    heightDelta: 20, //Height coefficient
+    heightDelta: 20, //Height of walls. AABB.w === heightDelta means 1:1 textured wall.
     /*
     Default function shown below.
     Params:
